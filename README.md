@@ -1,7 +1,16 @@
 # xcomfort-python
 Unofficial python package for communicating with Eaton xComfort Bridge
 
-## Usage
+## Versions
+
+This repository contains two implementations:
+
+- **Python** (in `/xcomfort/`) - Original Python library
+- **.NET 9** (in `/xcomfort-dotnet/`) - C# translation with full feature parity
+
+Both versions provide the same functionality for controlling xComfort Bridge devices.
+
+## Python Usage
 ```python
 import asyncio
 from xcomfort import Bridge
@@ -35,7 +44,41 @@ asyncio.run(main())
 
 ```
 
+## .NET 9 Usage
+
+```csharp
+using XComfortDotNet;
+
+var bridge = new Bridge("<ip_address>", "<auth_key>");
+var runTask = Task.Run(() => bridge.RunAsync());
+
+var devices = await bridge.GetDevicesAsync();
+
+foreach (var device in devices.Values)
+{
+    device.State.Subscribe(state => 
+        Console.WriteLine($"Device state [{device.DeviceId}] '{device.Name}': {state}"));
+}
+
+await Task.Delay(TimeSpan.FromSeconds(50));
+
+await bridge.CloseAsync();
+await runTask;
+bridge.Dispose();
+```
+
+See [xcomfort-dotnet/README.md](xcomfort-dotnet/README.md) for complete .NET documentation.
+
 ## Tests
+
+### Python
 ```python
 python -m pytest
+```
+
+### .NET
+```bash
+cd xcomfort-dotnet
+dotnet build
+dotnet test  # (tests not yet implemented)
 ```
